@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Gastos</title>
+    <link rel="stylesheet" href="./CSS/index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>Mis gastos <br>
+    Calculadora de gastos</h1>
+    <button id="addExpenseButton">Agregar Gasto</button>
+    <div id="buttonsContainer">
+        <div id="totalAmount" class="total-amount"></div>
+    </div>
+    <div id="popup">
+        <h2>Agregar Detalles del Gasto</h2>
+        <input placeholder="Nombre del Gasto" type="text" id="nombre"><br>
+        <input placeholder="Monto" type="number" id="monto"><br><br>
+        <button id="saveButton">Guardar</button>
+        <div id="montoDisplay" class="monto-display"></div>
+    </div>
+
+    <script src="./JS/index.js"></script>
+</body>
+</html>
