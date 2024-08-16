@@ -4,16 +4,15 @@ let nombreInput = document.getElementById('nombre');
 let montoInput = document.getElementById('monto');
 let montoDisplay = document.getElementById('montoDisplay');
 let totalAmountDisplay = document.getElementById('totalAmount');
-let currentButton = null;
 let currentGastoIndex = null;
+let chart = null;
 
 document.getElementById('addExpenseButton').addEventListener('click', () => {
     nombreInput.value = '';
     montoInput.value = '';
     montoDisplay.textContent = '';
     popup.style.display = 'block';
-    currentButton = null; 
-    currentGastoIndex = null; 
+    currentGastoIndex = null;
 });
 
 montoInput.addEventListener('input', () => {
@@ -35,60 +34,113 @@ document.getElementById('saveButton').addEventListener('click', () => {
         } else {
             let index = gastos.length;
             gastos.push({ Nombre: nombre, Monto: monto });
-            let button = document.createElement('button');
-            button.innerText = `${nombre} ($${monto.toFixed(2)})`;
-            button.dataset.index = index; // Usar un índice para identificar el gasto
-            button.addEventListener('click', () => {
-                nombreInput.value = gastos[button.dataset.index].Nombre;
-                montoInput.value = gastos[button.dataset.index].Monto;
-                montoDisplay.textContent = `Monto: $${gastos[button.dataset.index].Monto.toFixed(2)}`;
-                popup.style.display = 'block';
-                currentButton = button;
-                currentGastoIndex = button.dataset.index;
-            });
-            document.getElementById('buttonsContainer').appendChild(button);
+            createGastoButton(index, nombre, monto);
         }
 
-        saveGastos();
+        guardarGastos();
         popup.style.display = 'none';
         nombreInput.value = '';
         montoInput.value = '';
-        updateTotalAmount();
+        actualizarMontosTotales();
+        actualizarGrafico();
     } else {
         alert('Por favor, ingresa un nombre y un monto válido.');
     }
 });
 
-function updateTotalAmount() {
+function actualizarMontosTotales() {
     let total = gastos.reduce((sum, g) => sum + g.Monto, 0);
     totalAmountDisplay.textContent = `Total: $${total.toFixed(2)}`;
 }
 
-
-function saveGastos() {
+function guardarGastos() {
     localStorage.setItem('gastos', JSON.stringify(gastos));
 }
 
-function loadGastos() {
+function cargarGastos() {
     const savedGastos = localStorage.getItem('gastos');
     if (savedGastos) {
         gastos = JSON.parse(savedGastos);
-        gastos.forEach((gasto, index) => {
-            let button = document.createElement('button');
-            button.innerText = `${gasto.Nombre} ($${gasto.Monto.toFixed(2)})`;
-            button.dataset.index = index;
-            button.addEventListener('click', () => {
-                nombreInput.value = gasto.Nombre;
-                montoInput.value = gasto.Monto;
-                montoDisplay.textContent = `Monto: $${gasto.Monto.toFixed(2)}`;
-                popup.style.display = 'block';
-                currentButton = button;
-                currentGastoIndex = index;
-            });
-            document.getElementById('buttonsContainer').appendChild(button);
-        });
-        updateTotalAmount();
+        gastos.forEach((gasto, index) => createGastoButton(index, gasto.Nombre, gasto.Monto));
+        actualizarMontosTotales();
+        actualizarGrafico();
     }
 }
 
-window.onload = loadGastos;
+function createGastoButton(index, nombre, monto) {
+    let button = document.createElement('button');
+    button.innerText = `${nombre} ($${monto.toFixed(2)})`;
+    button.dataset.index = index;
+
+    let deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Eliminar';
+    deleteButton.classList.add('delete-button');
+    deleteButton.addEventListener('click', () => eliminarGasto(index));
+
+    button.addEventListener('click', () => {
+        nombreInput.value = gastos[index].Nombre;
+        montoInput.value = gastos[index].Monto;
+        montoDisplay.textContent = `Monto: $${gastos[index].Monto.toFixed(2)}`;
+        popup.style.display = 'block';
+        currentGastoIndex = index;
+    });
+
+    let container = document.createElement('div');
+    container.appendChild(button);
+    container.appendChild(deleteButton);
+    document.getElementById('buttonsContainer').appendChild(container);
+}
+
+function eliminarGasto(index) {
+    gastos.splice(index, 1);
+    guardarGastos();
+    document.getElementById('buttonsContainer').innerHTML = '';
+    cargarGastos();
+    actualizarGrafico();
+}
+
+function actualizarGrafico() {
+    if (chart) {
+        chart.destroy();
+    }
+
+    let ctx = document.getElementById('gastosChart').getContext('2d');
+    let labels = gastos.map(g => g.Nombre);
+    let data = gastos.map(g => g.Monto);
+
+    chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+            }
+        }
+    });
+}
+
+function cargarDatosDesdeJSON() {
+    fetch('data/gastos.json')
+        .then(response => response.json())
+        .then(data => {
+            gastos = data;
+            guardarGastos();
+            document.getElementById('buttonsContainer').innerHTML = '';
+            cargarGastos();
+        })
+        .catch(error => console.error('Error al cargar datos:', error));
+}
+
+window.onload = () => {
+    cargarGastos();
+    cargarDatosDesdeJSON();
+};

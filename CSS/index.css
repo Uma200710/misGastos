@@ -16,20 +16,33 @@
     margin-top: 10px;
 }
 
-*{
-        font-family: "Barlow", sans-serif;
-        font-weight: 500;
-        font-style: normal;
-        text-align: center;
-        margin-bottom: 5px;
+* {
+    font-family: "Barlow", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+    text-align: center;
+    margin-bottom: 5px;
 }
 
-button{
+button {
     height: 40px;
     border-radius: 5px;
     margin-right: 5px;
 }
 
-#totalAmount{
+#totalAmount {
     color: rgb(183, 0, 0);
+}
+
+.chart-container {
+    width: 80%;
+    margin: 20px auto;
+}
+
+.delete-button {
+    background-color: red;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-left: 5px;
 }
