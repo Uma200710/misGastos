@@ -26,6 +26,7 @@ document.getElementById('saveButton').addEventListener('click', () => {
 
     if (nombre && !isNaN(monto)) {
         if (currentGastoIndex !== null) {
+            gastos[currentGastoIndex].Nombre = nombre;  // Se actualiza el nombre
             gastos[currentGastoIndex].Monto = monto;
             let button = document.querySelector(`#buttonsContainer button[data-index="${currentGastoIndex}"]`);
             if (button) {
@@ -105,8 +106,18 @@ function actualizarGrafico() {
     }
 
     let ctx = document.getElementById('gastosChart').getContext('2d');
-    let labels = gastos.map(g => g.Nombre);
-    let data = gastos.map(g => g.Monto);
+    
+    // Sumar montos de los gastos con el mismo nombre
+    let montosPorNombre = gastos.reduce((acc, gasto) => {
+        if (!acc[gasto.Nombre]) {
+            acc[gasto.Nombre] = 0;
+        }
+        acc[gasto.Nombre] += gasto.Monto;
+        return acc;
+    }, {});
+
+    let labels = Object.keys(montosPorNombre);
+    let data = Object.values(montosPorNombre);
 
     chart = new Chart(ctx, {
         type: 'pie',
